@@ -1,0 +1,1 @@
+export const STORAGE_KEY = '@todoList:production1'

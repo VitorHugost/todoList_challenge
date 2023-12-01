@@ -6,10 +6,11 @@ import { useState } from 'react'
 
 interface Props {
     ListTask: string[],
-    remove: (task: string) => void
+    remove: (task: string) => void,
 }
 
 export function ListTask({ ListTask, remove }: Props) {
+
     const [qntTaskResolver, setQntTaskResolver] = useState<number>(0)
 
     return (
@@ -39,7 +40,8 @@ export function ListTask({ ListTask, remove }: Props) {
                         task={item}
                         onChangeResolver={setQntTaskResolver}
                         data={qntTaskResolver}
-                        remove={() => remove(item)} />
+                        remove={() => remove(item)} 
+                        />
                 )}
                 ListEmptyComponent={<EmpyList />}
             />

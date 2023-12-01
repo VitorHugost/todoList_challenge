@@ -1,24 +1,64 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { View, TouchableOpacity, Image, TextInput, Alert } from "react-native";
 import { Header } from "../../components/Header";
 import { ListTask } from "../../components/ListTask";
 import { styles } from "./styles";
+import { taskCreate } from "../../storage/tasks/taskCreate";
+import { taskgGetAll } from "../../storage/tasks/taskGetAll";
+import { taskRemoveByName } from "../../storage/tasks/taskRemoveByName";
+import { TaskStorageDTO } from "../../storage/tasks/taskDTO";
+import { AppError } from "../../utils/AppError";
+
+type Props = {
+  task: string;
+  checked: string;
+}
 
 export function Home() {
   const [listTask, setListTask] = useState<string[]>([])
   const [task, setTask] = useState('')
 
-  function addTask() {
-    if(!task){
-      return Alert.alert("Adicione uma tarefa","Adiciona uma atividade uma nova tarefa")
+  async function addTask() {
+
+    try {
+
+      if (!task) {
+        return Alert.alert("Adicione uma tarefa", "Adiciona uma atividade uma nova tarefa.")
+      }
+
+      const newTaks = {
+        task,
+        checked: true
+      }
+
+      await taskCreate(newTaks)
+      setTask('')
+      fetchTask()
+    } catch (error) {
+      if (error instanceof AppError) {
+        return Alert.alert("Nova Atividade", error.message)
+      }
+      console.log(error)
+      return Alert.alert("Nova Atividade", 'Não foi possivel cadastrar atividade.')
     }
-    setListTask(listTask => [...listTask, task])
-    setTask('')
   }
-  function removeTask(taks: string) {
-    setListTask(prevState => prevState.filter(participant => participant !== taks))
+
+  async function removeTask(taks: string) {
+    await taskRemoveByName(taks)
     setTask('')
+    fetchTask()
   }
+
+  async function fetchTask() {
+    const data = await taskgGetAll()
+    const dataTaks = data.map((element) => (element.task))
+
+    setListTask(dataTaks)
+  }
+
+  useEffect(() => {
+    fetchTask()
+  }, [task])
 
   return (
     <>
